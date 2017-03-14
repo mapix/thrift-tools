@@ -24,9 +24,10 @@ FormatOptions = namedtuple('FormatOptions', [
     'json',
 ])
 
+COLORS = sorted(set(colors.COLORS) - set(['black']), reverse=True)
 
 def print_color(s, color_id, output=sys.stdout):
-    attr = colors.COLORS[color_id % len(colors.COLORS)]
+    attr = COLORS[color_id % len(COLORS)]
     cfunc = getattr(colors, attr)
     output.write(cfunc(s))
     output.flush()
@@ -77,7 +78,7 @@ def print_msg(timestamp, src, dst, msg, format_opts,
             header_line, fields_line)
 
     if format_opts.is_color:
-        print_color(outputstr, src.__hash__())
+        print_color(outputstr, src.__hash__() + dst.__hash__())
     else:
         output.write(outputstr)
         output.flush()
@@ -122,24 +123,26 @@ class PairedPrinter(object):
         the 'call' message... but there's no easy way to tell
         (given we don't keep the startup time around...)
         """
+        method = self.normalize_method_name(msg.method)
         if msg.type == 'call':
-            replies = self._replies[dst][src][msg.method]
+
+            replies = self._replies[dst][src][method]
             if len(replies) > 0:
                 reply_timestamp, reply = replies.popleft()
                 self._print_pair(
                     timestamp, msg, reply_timestamp, reply, src, dst)
             else:
-                self._requests[src][dst][msg.method].append(
+                self._requests[src][dst][method].append(
                     (timestamp, msg))
-        elif msg.type == 'reply':
-            requests = self._requests[dst][src][msg.method]
+        elif msg.type in ('reply', 'exception'):
+            requests = self._requests[dst][src][method]
             if len(requests) > 0:
                 request_timestamp, request = requests.popleft()
                 self._print_pair(
                     request_timestamp, request, timestamp, msg,
                     dst, src)
             else:
-                self._replies[src][dst][msg.method].append(
+                self._replies[src][dst][method].append(
                     (timestamp, msg))
         else:
             print_msg(timestamp, src, dst, msg, self._format_opts,
@@ -152,6 +155,13 @@ class PairedPrinter(object):
                   output=self._output)
         print_msg(reptime, dst, src, reply, self._format_opts,
                   prefix='------>', indent=8, output=self._output)
+
+    def normalize_method_name(self, method_name):
+        if " # " in method_name:
+            _, _, method_name = method_name.split()
+            if ':' in method_name:
+                method_name = method_name.split(':')[0]
+        return method_name
 
 
 class LatencyPrinter(object):

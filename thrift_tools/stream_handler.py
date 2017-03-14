@@ -22,7 +22,8 @@ class StreamHandler(object):
                  finagle_thrift=False,
                  max_message_size=1024*1000,
                  read_values=False,
-                 debug=False):
+                 debug=False,
+                 skip_verify_method=False):
         self._contexts_by_streams = defaultdict(StreamContext)
         self._pop_size = 1024  # TODO: what's a good value here?
         self._outqueue = outqueue
@@ -32,6 +33,7 @@ class StreamHandler(object):
         self._debug = debug
         self._read_values = read_values
         self._seen_messages = 0
+        self._skip_verify_method = skip_verify_method
         self._recognized_streams = set()  # streams from which msgs have been read
 
     def __call__(self, *args, **kwargs):
@@ -80,20 +82,21 @@ class StreamHandler(object):
                     data_slice,
                     protocol=self._protocol,
                     finagle_thrift=self._finagle_thrift,
-                    read_values=self._read_values)
+                    read_values=self._read_values,
+                    skip_verify_method=self._skip_verify_method)
             except EOFError:
                 continue
             except Exception as ex:
                 if self._debug:
                     print('Bad message for stream %s: %s: %s\n(idx=%d) '
-                          '(context size=%d)' % (
+                        '(context size=%d)' % (
                             stream,
                             ex,
                             traceback.format_exc(),
                             idx,
                             len(context.bytes)),
-                          file=sys.stderr
-                          )
+                        file=sys.stderr
+                        )
                 continue
 
             self._recognized_streams.add(stream)

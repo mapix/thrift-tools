@@ -19,6 +19,7 @@ MessageSnifferOptions = namedtuple('MessageSnifferOptions', [
     'read_values',
     'max_queued',
     'max_message_size',
+    'skip_verify_method',
     'debug',
 ])
 
@@ -39,6 +40,7 @@ class MessageSniffer(Thread):
             finagle_thrift=options.finagle_thrift,
             max_message_size=options.max_message_size,
             read_values=options.read_values,
+            skip_verify_method=options.skip_verify_method,
             debug=options.debug)
 
         self._sniffer = Sniffer(

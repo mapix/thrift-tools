@@ -57,3 +57,4 @@ target/
 
 # PEX-files
 *.pex
+venv

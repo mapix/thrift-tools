@@ -43,6 +43,8 @@ def get_flags():
     p.add_argument('--protocol', type=str, default='auto',
                    help='Use a specific protocol. Options: %s' %
                    VALID_PROTOCOLS)
+    p.add_argument('--skip-verify-method', default=False, action='store_true',
+                      help='Don\'t vefify thrift method name')
 
     cmds = p.add_subparsers(dest='cmd')
 
@@ -124,6 +126,7 @@ def main():
         read_values=read_values,
         max_queued=flags.max_queued,
         max_message_size=flags.max_message_size,
+        skip_verify_method=flags.skip_verify_method,
         debug=flags.debug
         )
     message_sniffer = MessageSniffer(options, printer)

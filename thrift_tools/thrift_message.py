@@ -87,7 +87,8 @@ class ThriftMessage(object):
              max_list_size=MAX_LIST_SIZE,
              max_map_size=MAX_MAP_SIZE,
              max_set_size=MAX_SET_SIZE,
-             read_values=False):
+             read_values=False,
+             skip_verify_method=False):
         """ tries to deserialize a message, might fail if data is missing """
 
         # do we have enough data?
@@ -129,9 +130,10 @@ class ThriftMessage(object):
 
         # we might have made it until this point by mere chance, so filter out
         # suspicious method names
-        valid = range(33, 127)
-        if any(ord(char) not in valid for char in method):
-            raise ValueError('invalid method name' % method)
+        if not skip_verify_method:
+            valid = range(33, 127)
+            if any(ord(char) not in valid for char in method):
+                raise ValueError('invalid method name' % method)
 
         args = ThriftStruct.read(
             proto,
