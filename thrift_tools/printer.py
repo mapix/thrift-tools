@@ -23,6 +23,7 @@ FormatOptions = namedtuple('FormatOptions', [
     'show_fields',
     'json',
     'filter_method',
+    'only_reply_exception',
 ])
 
 COLORS = sorted(set(colors.COLORS) - set(['black']), reverse=True)
@@ -152,7 +153,14 @@ class PairedPrinter(object):
         return True  # keep the sniffer running
 
     def _print_pair(self, reqtime, request, reptime, reply, src, dst):
-        if (not self._format_opts.filter_method) or (self._format_opts.filter_method in request.method):
+        show = True
+
+        if self._format_opts.only_reply_exception and reply.type != 'exception':
+            show = False
+        elif self._format_opts.filter_method and self._format_opts.filter_method not in request.method:
+            show = False
+
+        if show:
             print_msg(reqtime, src, dst, request, self._format_opts,
                     output=self._output)
             print_msg(reptime, dst, src, reply, self._format_opts,

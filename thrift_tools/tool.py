@@ -71,6 +71,8 @@ def get_flags():
                       help='Shows header, fields and values')
     dump.add_argument('--json', default=False, action='store_true',
                       help='Outputs messages as JSON')
+    dump.add_argument('--only-reply-exception', default=False, action='store_true',
+                      help='Only show exception case')
 
     # stats
     stats = cmds.add_parser('stats')
@@ -97,6 +99,7 @@ def main():
             flags.show_fields or flags.show_all,
             flags.json,
             flags.filter_method,
+            flags.only_reply_exception,
             )
         printer = printer_cls(format_opts)
         read_values = flags.show_values or flags.show_all
