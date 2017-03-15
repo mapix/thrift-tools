@@ -211,7 +211,7 @@ See examples/ for more ways to use this library!
 Example works for dae thrift service.
 
 ::
-    sudo thrift-tool --iface lo --skip-verify-method --port 7303   --finagle-thrift --protocol=binary dump --show-all --pretty  --color
+    sudo thrift-tool --iface lo --skip-verify-method --port 7303   --finagle-thrift --protocol=binary dump --show-all --pretty  --color --filter-method daeenv/TestThrift
 
 Tests
 ~~~~~

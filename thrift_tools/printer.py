@@ -22,6 +22,7 @@ FormatOptions = namedtuple('FormatOptions', [
     'show_header',
     'show_fields',
     'json',
+    'filter_method',
 ])
 
 COLORS = sorted(set(colors.COLORS) - set(['black']), reverse=True)
@@ -151,10 +152,11 @@ class PairedPrinter(object):
         return True  # keep the sniffer running
 
     def _print_pair(self, reqtime, request, reptime, reply, src, dst):
-        print_msg(reqtime, src, dst, request, self._format_opts,
-                  output=self._output)
-        print_msg(reptime, dst, src, reply, self._format_opts,
-                  prefix='------>', indent=8, output=self._output)
+        if (not self._format_opts.filter_method) or (self._format_opts.filter_method in request.method):
+            print_msg(reqtime, src, dst, request, self._format_opts,
+                    output=self._output)
+            print_msg(reptime, dst, src, reply, self._format_opts,
+                    prefix='------>', indent=8, output=self._output)
 
     def normalize_method_name(self, method_name):
         if " # " in method_name:

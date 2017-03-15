@@ -50,6 +50,8 @@ def get_flags():
 
     # dump
     dump = cmds.add_parser('dump')
+    dump.add_argument('--filter-method', type=str, default='',
+                   help='filter by request method name')
     dump.add_argument('--pretty', default=False, action='store_true',
                       help='Pretty print the Thrift structs')
     dump.add_argument('--color', default=False, action='store_true',
@@ -94,6 +96,7 @@ def main():
             flags.show_header or flags.show_all,
             flags.show_fields or flags.show_all,
             flags.json,
+            flags.filter_method,
             )
         printer = printer_cls(format_opts)
         read_values = flags.show_values or flags.show_all
